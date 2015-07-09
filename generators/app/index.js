@@ -2,7 +2,6 @@
 var yeoman = require('yeoman-generator');
 var chalk = require('chalk');
 var yosay = require('yosay');
-var request = require('request');
 
 var INK_VERSION = '1.0.5';
 
@@ -39,6 +38,8 @@ module.exports = yeoman.generators.Base.extend({
     },
 
     projectfiles: function () {
+      var done = this.async();
+
       this.fs.copy(
         this.templatePath('Gulpfile.js'),
         this.destinationPath('Gulpfile.js')
@@ -47,15 +48,22 @@ module.exports = yeoman.generators.Base.extend({
         this.templatePath('editorconfig'),
         this.destinationPath('.editorconfig')
       );
-      this.fs.copy(
-        this.templatePath('ink-' + INK_VERSION + '.zip'),
-        this.destinationPath('source/ink.zip')
+      var inkUrl = 'http://zurb.com/ink/downloads/framework/ink-' + INK_VERSION + '.zip';
+      this.extract(
+        inkUrl,
+        this.destinationPath('source/'),
+        null,
+        function() {
+          done();
+        }.bind(this)
       );
     }
   },
 
   install: function () {
-    this.installDependencies();
+    this.installDependencies({
+      bower: false
+    });
 
   }
 });
